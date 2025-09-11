@@ -1,59 +1,10 @@
 import flet as ft
 import openpyxl
 import os
-import sys
 import asyncio
 import time
-import subprocess
 
 
-
-class Countdown(ft.Text):
-    def __init__(self, seconds: int, heartbeat_script: str = "heartbeat.py", style=None, ref=None):
-        super().__init__(value=str(seconds), style=style, ref=ref)
-        self.seconds = seconds
-        self.heartbeat_script = heartbeat_script
-        self.started = False
-
-    def did_mount(self):
-        # Don't start automatically - wait for manual start
-        self.running = False
-
-    def will_unmount(self):
-        self.running = False
-
-    def start(self):
-        if not self.started:
-            self.started = True
-            self.running = True
-            self.page.run_task(self._update_timer)
-
-    async def _update_timer(self):
-        # locate your heartbeat.py next to this script
-        script_path = os.path.join(os.path.dirname(__file__), self.heartbeat_script)
-
-        while self.running and self.seconds > 0:
-            await asyncio.sleep(1)
-            # 1. Decrement and update UI
-            self.seconds -= 1
-            self.value = str(self.seconds)
-            self.update()
-
-            # 2. Fire off heartbeat.py in a non-blocking way
-            if os.path.isfile(script_path):
-                # Use the same Python interpreter
-                subprocess.Popen(
-                    [sys.executable, script_path],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
-            else:
-                print(f"heartbeat script not found at: {script_path}")
-
-        # When countdown ends
-        if self.running:
-            self.value = "⏰ Time's up!"
-            self.update()
 
 async def main(page: ft.Page):
     page.title = "ICI 2025 SF PAUTAKAN"
@@ -64,7 +15,6 @@ async def main(page: ft.Page):
 
     # Define refs for dynamic text updates
     time_label_ref = ft.Ref[ft.Text]()
-    time_value_ref = ft.Ref[ft.Text]()
     round_label_ref = ft.Ref[ft.Text]()
     round_value_ref = ft.Ref[ft.Text]()
     score_label_ref = ft.Ref[ft.Text]()
@@ -79,9 +29,26 @@ async def main(page: ft.Page):
     logo_ref = ft.Ref[ft.Image]() # current logo
     current_logo = "nologo.png"
     timer_running = False
-    countdown_ref = ft.Ref[Countdown]()  # Reference to countdown instance
+
+    # Timer text control
+    time_value_text = ft.Text("100", style=ft.TextStyle(font_family="digital-7", size=60))
+
+    # Create Flet Timer
+    # countdown_timer = ft.Timer(interval=1, callback=countdown_tick)
 
 
+    async def countdown():
+        nonlocal timer_running
+        while timer_running and int(time_value_text.value) > 0:
+            await asyncio.sleep(1)
+            if not timer_running:
+                break
+            current_time = int(time_value_text.value) - 1
+            time_value_text.value = str(current_time).zfill(3)
+            print(f"Timer updated to: {time_value_text.value}")
+            page.update()
+        timer_running = False
+        print("Countdown finished")
 
     def selector():
 
@@ -136,6 +103,28 @@ async def main(page: ft.Page):
             print(f"Question display cue number: ", question_displayq)
 
 
+            ## Timer Settings
+            print(f"Checking timer key: '{key_display.value.lower()}' == 't'")
+            if key_display.value.lower() == "t":  # Press 'T' to start/reset timer
+                print("Entered T key if")
+                if not timer_running:
+                    print("T key has been pressed - starting timer")
+                    time_value_text.value = "100"
+                    print(f"Timer reset to: {time_value_text.value}")
+                    timer_running = True
+                    asyncio.create_task(countdown())
+                else:
+                    print("Timer already running")
+            elif key_display.value.lower() == "s":  # Press 'S' to stop timer
+                print("S key pressed - stopping timer")
+                timer_running = False
+
+
+
+
+            else:
+                anything = 1+2
+                #qnum_value_ref.current.value = "?
 
             logo_ref.current.src = current_logo
         except Exception as ex:
@@ -198,10 +187,6 @@ async def main(page: ft.Page):
             cell_value_ans = sheet[cell_ref_ans].value
             print(f"{cell_value_ans}")
 
-            # Start countdown if selected cell is A2
-            if refdisqnumber_val_ref.current.value == "2":
-                if countdown_ref.current is not None:
-                    countdown_ref.current.start()
 
         except Exception as e:
             print(f"⚠️ current question function Error: {type(e).__name__} - {e}")
@@ -273,8 +258,7 @@ async def main(page: ft.Page):
                                 top=200,
                             ),
                             ft.Container(
-                                #Countown timer
-                                content=Countdown(seconds=100, heartbeat_script="heartbeat.py", style=ft.TextStyle(font_family="digital-7", size=60), ref=countdown_ref),
+                                content=time_value_text,
                                 alignment=ft.alignment.top_left,
                                 left=60,
                                 top=250,
