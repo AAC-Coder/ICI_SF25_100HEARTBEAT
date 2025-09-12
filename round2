@@ -106,6 +106,7 @@ async def main(page: ft.Page):
     # List for answers
     answers = []
     display_index = 0
+    ans_counter = 0
 
     # my variables
     logo_ref = ft.Ref[ft.Image]() # current logo
@@ -122,6 +123,34 @@ async def main(page: ft.Page):
     pygame.mixer.init()
     correct_sound = pygame.mixer.Sound("assets/sounds_correct.mp3")
     wrong_sound = pygame.mixer.Sound("assets/sounds_wrong.mp3")
+
+    def correct_answer_value():
+        try:
+            nonlocal ans_counter
+            #
+            if ans_counter == 0:
+                b1.current.value = answers[0]
+                b1.current.update()
+            elif ans_counter == 1:
+                b2.current.value = answers[1]
+                b2.current.update()
+            elif ans_counter == 2:
+                b3.current.value = answers[2]
+                b3.current.update()
+            elif ans_counter == 3:
+                b4.current.value = answers[3]
+                b4.current.update()
+            elif ans_counter == 4:
+                b5.current.value = answers[4]
+                b5.current.update()
+            elif ans_counter == 5:
+                b6.current.value = answers[5]
+                b6.current.update()
+
+            ans_counter += 1
+            page.update()
+        except Exception as e:
+            print(f"Error in correct_answer_value: {e}")
 
 
     # Cache the Excel data
@@ -147,7 +176,7 @@ async def main(page: ft.Page):
         cached_data = {}
 
     def update_display():
-        nonlocal answers
+        nonlocal answers, ans_counter
         sheet_name = sheet_selector(int(qnum_value_ref.current.value))
         if sheet_name in cached_data:
             a1.current.value = cached_data[sheet_name]['questions'].get(2, "")
@@ -174,6 +203,7 @@ async def main(page: ft.Page):
             b5.current.update()
             b6.current.value = ""
             b6.current.update()
+            ans_counter = 0
             answers = [
                 cached_data[sheet_name]['answers'].get(2, ""),
                 cached_data[sheet_name]['answers'].get(3, ""),
@@ -207,6 +237,7 @@ async def main(page: ft.Page):
             b5.current.update()
             b6.current.value = ""
             b6.current.update()
+            ans_counter = 0
             answers = ["", "", "", "", "", ""]
 
     def selector():
@@ -286,13 +317,14 @@ async def main(page: ft.Page):
             elif key_display.value == "T":
                 if countdown_ref.current:
                     countdown_ref.current.toggle_pause()
-            elif key_display.value == " ":
+            elif key_display.value == " ": # if statement for space bar condition 
                 # Add score_point_var to score_value_ref and time_point_var to time_value_ref
                 if score_value_ref.current:
                     current_score = int(score_value_ref.current.value)
                     current_score += score_point_var
                     score_value_ref.current.value = str(current_score)
                     score_value_ref.current.update()
+                    correct_answer_value() # updating the answer on right  column
                 if countdown_ref.current:
                     countdown_ref.current.seconds += time_point_var
                     countdown_ref.current.value = str(countdown_ref.current.seconds)
@@ -367,7 +399,7 @@ async def main(page: ft.Page):
             # question_value_ref.current.value = f"Q{qnum}: {q}" if q else "⚠️ Cell is empty"
             print("Current sheet Name: ", sheet_name)
         else:
-            question_value_ref.current.value = f"❌ Sheet '{sheet_name}' not found"
+            #question_value_ref.current.value = f"❌ Sheet '{sheet_name}' not found"
             print("Current sheet Name: ", sheet_name)
             return
 
