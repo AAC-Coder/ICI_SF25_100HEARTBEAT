@@ -12,3 +12,9 @@ pip install flet-timer
 pip install pygame
 pip install playsound
 pip install pandas
+
+
+
+Round 1 and Round 2 (Plus Minus 2 Time) | + 1 Score
+Round 3 and Round 4 (Plus Minus 3 Time) | + 2 Score
+Round 5 and Round 6 (Plus Minus 3 Time) | + 3 Score

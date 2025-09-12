@@ -302,26 +302,31 @@ async def main(page: ft.Page):
             elif key_display.value =="0":
                 current_logo = "assets/nologo.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="1":
                 current_logo = "assets/fire.PNG"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="2":
                 current_logo = "assets/wind.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="3":
                 current_logo = "assets/earth.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="4":
                 current_logo = "assets/water.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value == "T":
@@ -371,12 +376,11 @@ async def main(page: ft.Page):
                 threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()
 
             print(f"Question display cue number: ", question_displayq)
-
-            logo_ref.current.src = current_logo
         except Exception as ex:
             current = int(qnum_value_ref.current.value)
             #qnum_value_ref.current.value = "Err"
 
+        logo_ref.current.src = current_logo
 
         # CALLING THE CURRENNT QUESTION NUMBER
         current_question_number()
@@ -452,12 +456,11 @@ async def main(page: ft.Page):
                     width=40,
                     height=40,
                     fit=ft.ImageFit.CONTAIN,
-                    #left=580,
                     left=1070,
                     top=120,
                     ref=logo_ref
                 ),
-                
+
                 #ft.Text("Press any key...", opacity=0.5),
                 key_display,
                 #modifiers_display,

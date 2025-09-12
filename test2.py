@@ -302,32 +302,37 @@ async def main(page: ft.Page):
             elif key_display.value =="0":
                 current_logo = "assets/nologo.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="1":
                 current_logo = "assets/fire.PNG"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="2":
                 current_logo = "assets/wind.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="3":
                 current_logo = "assets/earth.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="4":
                 current_logo = "assets/water.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value == "T":
                 if countdown_ref.current:
                     countdown_ref.current.toggle_pause()
-            elif key_display.value == " ": # if statement for space bar condition 
+            elif key_display.value == " ": # if statement for space bar condition
                 # Add score_point_var to score_value_ref and time_point_var to time_value_ref
                 if score_value_ref.current:
                     current_score = int(score_value_ref.current.value)
@@ -339,6 +344,13 @@ async def main(page: ft.Page):
                     countdown_ref.current.seconds += time_point_var
                     countdown_ref.current.value = str(countdown_ref.current.seconds)
                     countdown_ref.current.update()
+
+                # Display cached value of B2 to b1
+                sheet_name = sheet_selector(int(qnum_value_ref.current.value))
+                if sheet_name in cached_data:
+                    b1_value = cached_data[sheet_name]['answers'].get(2, "")
+                    b1.current.value = b1_value
+                    b1.current.update()
 
                 ans_value_ref.current.value = answers[display_index]
                 ans_value_ref.current.update()
@@ -371,12 +383,11 @@ async def main(page: ft.Page):
                 threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()
 
             print(f"Question display cue number: ", question_displayq)
-
-            logo_ref.current.src = current_logo
         except Exception as ex:
             current = int(qnum_value_ref.current.value)
             #qnum_value_ref.current.value = "Err"
 
+        logo_ref.current.src = current_logo
 
         # CALLING THE CURRENNT QUESTION NUMBER
         current_question_number()
@@ -452,12 +463,11 @@ async def main(page: ft.Page):
                     width=40,
                     height=40,
                     fit=ft.ImageFit.CONTAIN,
-                    #left=580,
                     left=1070,
                     top=120,
                     ref=logo_ref
                 ),
-                
+
                 #ft.Text("Press any key...", opacity=0.5),
                 key_display,
                 #modifiers_display,
