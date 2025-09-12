@@ -13,10 +13,12 @@ import openpyxl
 class Countdown(ft.Text):
     def __init__(self, seconds: int, heartbeat_script: str = "heartbeat.py", style=None, ref=None):
         super().__init__(value=str(seconds), style=style, ref=ref)
+        self.initial_seconds = seconds
         self.seconds = seconds
         self.heartbeat_script = heartbeat_script
         self.started = False
         self.paused = False
+        self.task = None
 
     def did_mount(self):
         # Don't start automatically - wait for manual start
@@ -24,39 +26,47 @@ class Countdown(ft.Text):
 
     def will_unmount(self):
         self.running = False
+        if self.task and not self.task.done():
+            self.task.cancel()
 
     def toggle_pause(self):
         self.paused = not self.paused
 
     def start(self):
-        if not self.started:
-            self.started = True
-            self.running = True
-            self.page.run_task(self._update_timer)
+        if self.task and not self.task.done():
+            self.task.cancel()
+        self.running = True
+        self.seconds = self.initial_seconds
+        self.value = str(self.seconds)
+        self.update()
+        self.task = self.page.run_task(self._update_timer)
 
     async def _update_timer(self):
         # locate your heartbeat.py next to this script
         script_path = os.path.join(os.path.dirname(__file__), self.heartbeat_script)
 
-        while self.running and self.seconds > 0:
-            await asyncio.sleep(1)
-            if not self.paused:
-                # 1. Decrement and update UI
-                self.seconds -= 1
-                self.value = str(self.seconds)
+        try:
+            while self.running and self.seconds > 0:
+                await asyncio.sleep(1)
+                if not self.paused:
+                    # 1. Decrement and update UI
+                    self.seconds -= 1
+                    self.value = str(self.seconds)
+                    self.update()
+
+                    # 2. Fire off heartbeat.py in a non-blocking way
+                    if os.path.isfile(script_path):
+                        # Use the same Python interpreter
+                        threading.Thread(target=lambda: subprocess.run([sys.executable, script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE), daemon=True).start()
+                    else:
+                        print(f"heartbeat script not found at: {script_path}")
+
+            # When countdown ends
+            if self.running:
+                self.value = "Time's up!"
                 self.update()
-
-                # 2. Fire off heartbeat.py in a non-blocking way
-                if os.path.isfile(script_path):
-                    # Use the same Python interpreter
-                    threading.Thread(target=lambda: subprocess.run([sys.executable, script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE), daemon=True).start()
-                else:
-                    print(f"heartbeat script not found at: {script_path}")
-
-        # When countdown ends
-        if self.running:
-            self.value = "Time's up!"
-            self.update()
+        finally:
+            self.task = None
 
 async def main(page: ft.Page):
     page.title = "ICI 2025 SF PAUTAKAN"
@@ -93,8 +103,9 @@ async def main(page: ft.Page):
     b5 = ft.Ref[ft.Text]()
     b6 = ft.Ref[ft.Text]()
 
-
-    
+    # List for answers
+    answers = []
+    display_index = 0
 
     # my variables
     logo_ref = ft.Ref[ft.Image]() # current logo
@@ -136,26 +147,74 @@ async def main(page: ft.Page):
         cached_data = {}
 
     def update_display():
+        nonlocal answers
         sheet_name = sheet_selector(int(qnum_value_ref.current.value))
         if sheet_name in cached_data:
             a1.current.value = cached_data[sheet_name]['questions'].get(2, "")
+            a1.current.update()
             a2.current.value = cached_data[sheet_name]['questions'].get(3, "")
+            a2.current.update()
             a3.current.value = cached_data[sheet_name]['questions'].get(4, "")
+            a3.current.update()
             a4.current.value = cached_data[sheet_name]['questions'].get(5, "")
+            a4.current.update()
             a5.current.value = cached_data[sheet_name]['questions'].get(6, "")
+            a5.current.update()
             a6.current.value = cached_data[sheet_name]['questions'].get(7, "")
+            a6.current.update()
+            b1.current.value = ""
+            b1.current.update()
+            b2.current.value = ""
+            b2.current.update()
+            b3.current.value = ""
+            b3.current.update()
+            b4.current.value = ""
+            b4.current.update()
+            b5.current.value = ""
+            b5.current.update()
+            b6.current.value = ""
+            b6.current.update()
+            answers = [
+                cached_data[sheet_name]['answers'].get(2, ""),
+                cached_data[sheet_name]['answers'].get(3, ""),
+                cached_data[sheet_name]['answers'].get(4, ""),
+                cached_data[sheet_name]['answers'].get(5, ""),
+                cached_data[sheet_name]['answers'].get(6, ""),
+                cached_data[sheet_name]['answers'].get(7, "")
+            ]
         else:
             a1.current.value = ""
+            a1.current.update()
             a2.current.value = ""
+            a2.current.update()
             a3.current.value = ""
+            a3.current.update()
             a4.current.value = ""
+            a4.current.update()
             a5.current.value = ""
+            a5.current.update()
             a6.current.value = ""
+            a6.current.update()
+            b1.current.value = ""
+            b1.current.update()
+            b2.current.value = ""
+            b2.current.update()
+            b3.current.value = ""
+            b3.current.update()
+            b4.current.value = ""
+            b4.current.update()
+            b5.current.value = ""
+            b5.current.update()
+            b6.current.value = ""
+            b6.current.update()
+            answers = ["", "", "", "", "", ""]
 
     def selector():
 
         nonlocal current_logo
         nonlocal cached_data
+        nonlocal display_index
+        nonlocal answers
         print(f"Selector called with key: {key_display.value}")
         try:
             question_displayq = 0
@@ -165,13 +224,17 @@ async def main(page: ft.Page):
             currentqnum = int(qnum_value_ref.current.value)
             if key_display.value == "Arrow Right":
                 qnum_value_ref.current.value = str(currentqnum + 1)
+                qnum_value_ref.current.update()
                 round_value_ref.current.value = str(currentqnum + 1)
+                round_value_ref.current.update()
                 update_display()
 
             elif key_display.value == "Arrow Left":
                 if currentqnum >= 1:
                     qnum_value_ref.current.value = str(currentqnum - 1)
+                    qnum_value_ref.current.update()
                     round_value_ref.current.value = str(currentqnum - 1)
+                    round_value_ref.current.update()
                     update_display()
 
 
@@ -183,6 +246,7 @@ async def main(page: ft.Page):
                 print("Hit: cell selector increment")
                 print(refdisqnumber_val_ref.current.value)
                 refdisqnumber_val_ref.current.value = str(question_displayq)
+                refdisqnumber_val_ref.current.update()
             elif key_display.value == "Arrow Down":
                 if question_displayq >= 1:
                     question_displayq = question_displayq - 1
@@ -190,24 +254,35 @@ async def main(page: ft.Page):
                     print("Hit: cell selector decrement")
                     print(refdisqnumber_val_ref.current.value)
                     refdisqnumber_val_ref.current.value = str(question_displayq)
+                    refdisqnumber_val_ref.current.update()
                     #return question_displayq
 
            #selecting team
             elif key_display.value =="0":
                 current_logo = "assets/nologo.png"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value =="1":
                 current_logo = "assets/fire.PNG"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value =="2":
                 current_logo = "assets/wind.png"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value =="3":
                 current_logo = "assets/earth.png"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value =="4":
                 current_logo = "assets/water.png"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value == "T":
                 if countdown_ref.current:
                     countdown_ref.current.toggle_pause()
@@ -217,20 +292,16 @@ async def main(page: ft.Page):
                     current_score = int(score_value_ref.current.value)
                     current_score += score_point_var
                     score_value_ref.current.value = str(current_score)
+                    score_value_ref.current.update()
                 if countdown_ref.current:
                     countdown_ref.current.seconds += time_point_var
                     countdown_ref.current.value = str(countdown_ref.current.seconds)
                     countdown_ref.current.update()
 
-                sheet_name = sheet_selector(int(qnum_value_ref.current.value))
-                if sheet_name in cached_data:
-                    row = int(refdisqnumber_val_ref.current.value)
-                    ans = cached_data[sheet_name]['answers'].get(row, "No answer available")
-                    ans_value_ref.current.value = ans
-                    print(f"Answer displayed: {ans}")
-                else:
-                    ans_value_ref.current.value = "Sheet not found"
-                    print("Sheet not found")
+                ans_value_ref.current.value = answers[display_index]
+                ans_value_ref.current.update()
+                print(f"Answer {display_index + 1} displayed: {answers[display_index]}")
+                display_index = (display_index + 1) % 6
 
                 # Play correct sound
                 threading.Thread(target=lambda: correct_sound.play(), daemon=True).start()
@@ -247,9 +318,11 @@ async def main(page: ft.Page):
                     row = int(refdisqnumber_val_ref.current.value)
                     ans = cached_data[sheet_name]['answers'].get(row, "No answer available")
                     ans_value_ref.current.value = ans
+                    ans_value_ref.current.update()
                     print(f"Answer displayed on Backspace: {ans}")
                 else:
                     ans_value_ref.current.value = "Sheet not found"
+                    ans_value_ref.current.update()
                     print("Sheet not found")
 
                 # Play wrong sound
@@ -265,11 +338,6 @@ async def main(page: ft.Page):
 
         # CALLING THE CURRENNT QUESTION NUMBER
         current_question_number()
-
-
-
-
-        page.update()
 
     def sheet_selector(qnum):
         print(current_logo)
@@ -412,6 +480,18 @@ async def main(page: ft.Page):
                                 alignment=ft.alignment.top_left,
                                 left=20,
                                 top=600,
+                            ),
+                            ft.Container(
+                                content=ft.Text("ANSWER", style=ft.TextStyle(font_family="digital-7", size=30)),
+                                alignment=ft.alignment.top_left,
+                                left=60,
+                                top=650,
+                            ),
+                            ft.Container(
+                                content=ft.Text("", style=ft.TextStyle(font_family="digital-7", size=60), ref=ans_value_ref),
+                                alignment=ft.alignment.top_left,
+                                left=60,
+                                top=700,
                             ),
                         ]
                     ),

@@ -3,7 +3,8 @@
 - [x] Modify countdown to start immediately when selecting a logo (keys 0-4), resetting to 100 seconds.
 - [x] Add .update() calls to all text elements in update_display() to force UI refresh and display values.
 - [x] Modify update_display to not set b1.current.value to the answer, but to "" or keep as is, and load answers list.
-ou- [x] Add nonlocal answers in selector.
+- [x] Add nonlocal answers in selector.
 - [x] Change space handler to use answers[display_index] instead of b_list[display_index].current.value.
 - [x] Add ans_value_ref to the UI for displaying answers.
-- [ ] Test the updated changes to confirm values are now displaying correctly.
+- [x] Fix countdown to start on logo selection and reset to 100 seconds.
+- [ ] Test the countdown functionality to ensure it starts and updates correctly.

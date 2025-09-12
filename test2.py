@@ -13,10 +13,12 @@ import openpyxl
 class Countdown(ft.Text):
     def __init__(self, seconds: int, heartbeat_script: str = "heartbeat.py", style=None, ref=None):
         super().__init__(value=str(seconds), style=style, ref=ref)
+        self.initial_seconds = seconds
         self.seconds = seconds
         self.heartbeat_script = heartbeat_script
         self.started = False
         self.paused = False
+        self.task = None
 
     def did_mount(self):
         # Don't start automatically - wait for manual start
@@ -24,41 +26,47 @@ class Countdown(ft.Text):
 
     def will_unmount(self):
         self.running = False
+        if self.task and not self.task.done():
+            self.task.cancel()
 
     def toggle_pause(self):
         self.paused = not self.paused
 
     def start(self):
-        if not self.started:
-            self.started = True
-            self.running = True
-            self.page.run_task(self._update_timer)
+        if self.task and not self.task.done():
+            self.task.cancel()
+        self.running = True
+        self.seconds = self.initial_seconds
+        self.value = str(self.seconds)
+        self.update()
+        self.task = self.page.run_task(self._update_timer)
 
     async def _update_timer(self):
         # locate your heartbeat.py next to this script
         script_path = os.path.join(os.path.dirname(__file__), self.heartbeat_script)
 
-        while self.running and self.seconds > 0:
-            await asyncio.sleep(1)
-            if not self.paused:
-                # 1. Decrement and update UI
-                self.seconds -= 1
-                self.value = str(self.seconds)
+        try:
+            while self.running and self.seconds > 0:
+                await asyncio.sleep(1)
+                if not self.paused:
+                    # 1. Decrement and update UI
+                    self.seconds -= 1
+                    self.value = str(self.seconds)
+                    self.update()
+
+                    # 2. Fire off heartbeat.py in a non-blocking way
+                    if os.path.isfile(script_path):
+                        # Use the same Python interpreter
+                        threading.Thread(target=lambda: subprocess.run([sys.executable, script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE), daemon=True).start()
+                    else:
+                        print(f"heartbeat script not found at: {script_path}")
+
+            # When countdown ends
+            if self.running:
+                self.value = "Time's up!"
                 self.update()
-                self.page.update()
-
-                # 2. Fire off heartbeat.py in a non-blocking way
-                if os.path.isfile(script_path):
-                    # Use the same Python interpreter
-                    threading.Thread(target=lambda: subprocess.run([sys.executable, script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE), daemon=True).start()
-                else:
-                    print(f"heartbeat script not found at: {script_path}")
-
-        # When countdown ends
-        if self.running:
-            self.value = "Time's up!"
-            self.update()
-            self.page.update()
+        finally:
+            self.task = None
 
 async def main(page: ft.Page):
     page.title = "ICI 2025 SF PAUTAKAN"
@@ -253,18 +261,28 @@ async def main(page: ft.Page):
             elif key_display.value =="0":
                 current_logo = "assets/nologo.png"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value =="1":
                 current_logo = "assets/fire.PNG"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value =="2":
                 current_logo = "assets/wind.png"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value =="3":
                 current_logo = "assets/earth.png"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value =="4":
                 current_logo = "assets/water.png"
                 update_display()
+                if countdown_ref.current:
+                    countdown_ref.current.start()
             elif key_display.value == "T":
                 if countdown_ref.current:
                     countdown_ref.current.toggle_pause()
