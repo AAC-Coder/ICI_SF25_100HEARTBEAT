@@ -107,7 +107,7 @@ async def main(page: ft.Page):
     answers = []
     display_index = 0
     ans_counter = 0
-
+    
     # my variables
     logo_ref = ft.Ref[ft.Image]() # current logo
 

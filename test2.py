@@ -107,7 +107,7 @@ async def main(page: ft.Page):
     answers = []
     display_index = 0
     ans_counter = 0
-
+    
     # my variables
     logo_ref = ft.Ref[ft.Image]() # current logo
 
@@ -332,7 +332,7 @@ async def main(page: ft.Page):
             elif key_display.value == "T":
                 if countdown_ref.current:
                     countdown_ref.current.toggle_pause()
-            elif key_display.value == " ": # if statement for space bar condition
+            elif key_display.value == " ": # if statement for space bar condition 
                 # Add score_point_var to score_value_ref and time_point_var to time_value_ref
                 if score_value_ref.current:
                     current_score = int(score_value_ref.current.value)
@@ -344,13 +344,6 @@ async def main(page: ft.Page):
                     countdown_ref.current.seconds += time_point_var
                     countdown_ref.current.value = str(countdown_ref.current.seconds)
                     countdown_ref.current.update()
-
-                # Display cached value of B2 to b1
-                sheet_name = sheet_selector(int(qnum_value_ref.current.value))
-                if sheet_name in cached_data:
-                    b1_value = cached_data[sheet_name]['answers'].get(2, "")
-                    b1.current.value = b1_value
-                    b1.current.update()
 
                 ans_value_ref.current.value = answers[display_index]
                 ans_value_ref.current.update()
