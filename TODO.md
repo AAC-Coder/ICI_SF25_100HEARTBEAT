@@ -1,2 +1,4 @@
-- [x] Modify update_display function in round3.py to set b1-b5 to answers B2-B6 from the current sheet
-- [x] Test the application to ensure answers display correctly
+- [x] Modify the spacebar key handler in test3.py to set a1.current.value to the value of cell A2 from the current sheet's questions when spacebar is pressed.
+- [x] Add a1.current.update() to refresh the display.
+- [x] Fix correct_answer_value() not working by populating the answers list in the spacebar handler before calling it.
+- [x] Fix a1 getting the value of b1 by setting a1 to questions and b1 to answers.

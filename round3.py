@@ -103,7 +103,7 @@ async def main(page: ft.Page):
     b5 = ft.Ref[ft.Text]()
     b6 = ft.Ref[ft.Text]()
 
-    # List for answers
+    # List for answers  
     answers = []
     display_index = 0
     ans_counter = 0
@@ -175,6 +175,34 @@ async def main(page: ft.Page):
         print(f"Error loading workbook: {e}")
         cached_data = {}
 
+    def clear_display():
+        nonlocal answers, ans_counter
+        a1.current.value = ""
+        a1.current.update()
+        a2.current.value = ""
+        a2.current.update()
+        a3.current.value = ""
+        a3.current.update()
+        a4.current.value = ""
+        a4.current.update()
+        a5.current.value = ""
+        a5.current.update()
+        a6.current.value = ""
+        a6.current.update()
+        b1.current.value = "A. "
+        b1.current.update()
+        b2.current.value = "B. "
+        b2.current.update()
+        b3.current.value = "C. "
+        b3.current.update()
+        b4.current.value = "D. "
+        b4.current.update()
+        b5.current.value = "E. "
+        b5.current.update()
+        ans_counter = 0
+        answers = ["", "", "", "", "", ""]
+        update_display()
+    
     def update_display():
         nonlocal answers, ans_counter
         sheet_name = sheet_selector(int(qnum_value_ref.current.value))
@@ -212,15 +240,15 @@ async def main(page: ft.Page):
                     cached_data[sheet_name]['answers'].get(6, ""),
                     cached_data[sheet_name]['answers'].get(7, "")
                 ]
-                a1.current.value = cached_data[sheet_name]['answers'].get(2, "")
+                a1.current.value = cached_data[sheet_name]['questions'].get(2, "")
                 a1.current.update()
-                a2.current.value = cached_data[sheet_name]['answers'].get(3, "")
+                a2.current.value = cached_data[sheet_name]['questions'].get(3, "")
                 a2.current.update()
-                a3.current.value = cached_data[sheet_name]['answers'].get(4, "")
+                a3.current.value = cached_data[sheet_name]['questions'].get(4, "")
                 a3.current.update()
-                a4.current.value = cached_data[sheet_name]['answers'].get(5, "")
+                a4.current.value = cached_data[sheet_name]['questions'].get(5, "")
                 a4.current.update()
-                a5.current.value = cached_data[sheet_name]['answers'].get(6, "")
+                a5.current.value = cached_data[sheet_name]['questions'].get(6, "")
                 a5.current.update()
         else:
             a1.current.value = ""
@@ -300,39 +328,59 @@ async def main(page: ft.Page):
 
            #selecting team
             elif key_display.value =="0":
+                # clear the questions and answers display
                 current_logo = "assets/nologo.png"
-                update_display()
+                clear_display()
+                countdown_ref.update()
+                countdown_ref.current.value = 100
+                countdown_ref.current.toggle_pause()
                 print(f"Logo set to: {current_logo}")
+                update_display()
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="1":
+                countdown_ref.current.start()                
                 current_logo = "assets/fire.PNG"
                 update_display()
                 print(f"Logo set to: {current_logo}")
-                if countdown_ref.current:
-                    countdown_ref.current.start()
+
             elif key_display.value =="2":
+                countdown_ref.current.start()                
                 current_logo = "assets/wind.png"
                 update_display()
                 print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="3":
+                countdown_ref.current.start()
                 current_logo = "assets/earth.png"
                 update_display()
+
                 print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="4":
+                countdown_ref.current.start()                
                 current_logo = "assets/water.png"
                 update_display()
+
                 print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value == "T":
                 if countdown_ref.current:
                     countdown_ref.current.toggle_pause()
-            elif key_display.value == " ": # if statement for space bar condition 
+            elif key_display.value == " ": # if statement for space bar condition
+                sheet_name = sheet_selector(int(qnum_value_ref.current.value))
+                if sheet_name in cached_data:
+                    answers = [
+                        cached_data[sheet_name]['answers'].get(2, ""),
+                        cached_data[sheet_name]['answers'].get(3, ""),
+                        cached_data[sheet_name]['answers'].get(4, ""),
+                        cached_data[sheet_name]['answers'].get(5, ""),
+                        cached_data[sheet_name]['answers'].get(6, ""),
+                        cached_data[sheet_name]['answers'].get(7, "")
+                    ]
                 # Add score_point_var to score_value_ref and time_point_var to time_value_ref
                 if score_value_ref.current:
                     current_score = int(score_value_ref.current.value)
@@ -349,6 +397,8 @@ async def main(page: ft.Page):
                 ans_value_ref.current.update()
                 print(f"Answer {display_index + 1} displayed: {answers[display_index]}")
                 display_index = (display_index + 1) % 6
+
+
 
                 # Play correct sound
                 threading.Thread(target=lambda: correct_sound.play(), daemon=True).start()
@@ -417,10 +467,7 @@ async def main(page: ft.Page):
             print("Current sheet Name: ", sheet_name)
             return
 
-        # Start countdown if selected cell is A2
-        if refdisqnumber_val_ref.current.value == "2":
-            if countdown_ref.current is not None:
-                countdown_ref.current.start()
+
 
 
     
