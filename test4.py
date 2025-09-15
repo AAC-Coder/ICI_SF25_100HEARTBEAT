@@ -7,8 +7,40 @@ import subprocess
 import threading
 import pygame
 import openpyxl
+from collections import Counter
 
+_cached_workbook = None
+_cached_sheets = {}
 
+    
+
+def get_column_c_values(sheet_name=None):
+    """
+    Reads all values from column C of the Excel workbook and returns them in a dictionary.
+    Keys are row numbers, values are the cell values as strings.
+    If sheet_name is provided, reads from that sheet; otherwise, uses the active sheet.
+    Uses caching to avoid reloading the workbook multiple times.
+    """
+    global _cached_workbook, _cached_sheets
+    try:
+        if _cached_workbook is None:
+            _cached_workbook = openpyxl.load_workbook("SF2025_PAUTAKAN_100HEARTBEAT.xlsx")
+        if sheet_name:
+            if sheet_name not in _cached_sheets:
+                _cached_sheets[sheet_name] = _cached_workbook[sheet_name]
+            sheet = _cached_sheets[sheet_name]
+        else:
+            sheet = _cached_workbook.active
+        column_c_values = {}
+        for row in range(1, sheet.max_row + 1):
+            value = sheet[f"C{row}"].value
+            if value is not None:
+                column_c_values[row] = str(value)
+        print(column_c_values)
+        return column_c_values
+    except Exception as e:
+        print(f"Error reading column C: {e}")
+        return {}
 
 class Countdown(ft.Text):
     def __init__(self, seconds: int, heartbeat_script: str = "heartbeat.py", style=None, ref=None):
@@ -93,15 +125,23 @@ async def main(page: ft.Page):
     a2 = ft.Ref[ft.Text]()
     a3 = ft.Ref[ft.Text]()
     a4 = ft.Ref[ft.Text]()
-    a5 = ft.Ref[ft.Text]()
-    a6 = ft.Ref[ft.Text]()
 
     b1 = ft.Ref[ft.Text]()
     b2 = ft.Ref[ft.Text]()
     b3 = ft.Ref[ft.Text]()
     b4 = ft.Ref[ft.Text]()
-    b5 = ft.Ref[ft.Text]()
-    b6 = ft.Ref[ft.Text]()
+
+    # Toggle states for each text
+    toggled_states = {
+        "a1": False,
+        "a2": False,
+        "a3": False,
+        "a4": False,
+        "b1": False,
+        "b2": False,
+        "b3": False,
+        "b4": False,
+    }
 
     # List for answers  
     answers = []
@@ -110,6 +150,14 @@ async def main(page: ft.Page):
     
     # my variables
     logo_ref = ft.Ref[ft.Image]() # current logo
+
+    circle1_ref = ft.Ref[ft.Image]() # circle logo
+    circle2_ref = ft.Ref[ft.Image]() # circle logo
+    circle3_ref = ft.Ref[ft.Image]() # circle logo
+    circle4_ref = ft.Ref[ft.Image]() # circle logo
+    circle_ic_ref = ft.Ref[ft.Image]() # circle ic logo
+
+    correct_count = 0
 
     current_logo = "assets/nologo.png"
     timer_running = False
@@ -123,34 +171,6 @@ async def main(page: ft.Page):
     pygame.mixer.init()
     correct_sound = pygame.mixer.Sound("assets/sounds_correct.mp3")
     wrong_sound = pygame.mixer.Sound("assets/sounds_wrong.mp3")
-
-    def correct_answer_value():
-        try:
-            nonlocal ans_counter
-            #
-            if ans_counter == 0:
-                b1.current.value = answers[0]
-                b1.current.update()
-            elif ans_counter == 1:
-                b2.current.value = answers[1]
-                b2.current.update()
-            elif ans_counter == 2:
-                b3.current.value = answers[2]
-                b3.current.update()
-            elif ans_counter == 3:
-                b4.current.value = answers[3]
-                b4.current.update()
-            elif ans_counter == 4:
-                b5.current.value = answers[4]
-                b5.current.update()
-            elif ans_counter == 5:
-                b6.current.value = answers[5]
-                b6.current.update()
-
-            ans_counter += 1
-            page.update()
-        except Exception as e:
-            print(f"Error in correct_answer_value: {e}")
 
 
     # Cache the Excel data
@@ -175,6 +195,40 @@ async def main(page: ft.Page):
         print(f"Error loading workbook: {e}")
         cached_data = {}
 
+    def count_display_circles():
+        nonlocal correct_count, circle1_ref, circle2_ref, circle3_ref, circle4_ref
+        try:
+            if correct_count == 1:
+                circle1_ref.current.src = "assets/circle_ic.png"
+                circle1_ref.current.update()   
+                threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()          
+            elif correct_count == 2:
+                circle1_ref.current.src = "assets/circle_ic.png"
+                circle1_ref.current.update()
+                circle2_ref.current.src = "assets/circle_ic.png"
+                circle2_ref.current.update()
+                threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()
+            elif correct_count == 3:
+                circle1_ref.current.src = "assets/circle_ic.png"
+                circle1_ref.current.update()
+                circle2_ref.current.src = "assets/circle_ic.png"
+                circle2_ref.current.update()
+                circle3_ref.current.src = "assets/circle_ic.png"
+                circle3_ref.current.update()
+                threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()
+            elif correct_count == 4:
+                circle1_ref.current.src = "assets/circle_ic.png"
+                circle1_ref.current.update()
+                circle2_ref.current.src = "assets/circle_ic.png"
+                circle2_ref.current.update()
+                circle3_ref.current.src = "assets/circle_ic.png"
+                circle3_ref.current.update()
+                circle4_ref.current.src = "assets/circle_ic.png"
+                circle4_ref.current.update()
+                threading.Thread(target=lambda: correct_sound.play(), daemon=True).start()
+        except Exception as e:
+            print(f"Error updating circles: {e}")
+
     def clear_display():
         nonlocal answers, ans_counter
         a1.current.value = ""
@@ -185,10 +239,6 @@ async def main(page: ft.Page):
         a3.current.update()
         a4.current.value = ""
         a4.current.update()
-        a5.current.value = ""
-        a5.current.update()
-        a6.current.value = ""
-        a6.current.update()
         b1.current.value = "A. "
         b1.current.update()
         b2.current.value = "B. "
@@ -197,59 +247,51 @@ async def main(page: ft.Page):
         b3.current.update()
         b4.current.value = "D. "
         b4.current.update()
-        b5.current.value = "E. "
-        b5.current.update()
         ans_counter = 0
         answers = ["", "", "", "", "", ""]
         update_display()
     
     def update_display():
+        print("update_display called")
         nonlocal answers, ans_counter
         sheet_name = sheet_selector(int(qnum_value_ref.current.value))
         if sheet_name in cached_data:
-                b1.current.value = cached_data[sheet_name]['questions'].get(2, "")
-                b1.current.update()
-                b2.current.value = cached_data[sheet_name]['questions'].get(3, "")
-                b2.current.update()
-                b3.current.value = cached_data[sheet_name]['questions'].get(4, "")
-                b3.current.update()
-                b4.current.value = cached_data[sheet_name]['questions'].get(5, "")
-                b4.current.update()
-                b5.current.value = cached_data[sheet_name]['questions'].get(6, "")
-                b5.current.update()
-                b6.current.value = cached_data[sheet_name]['questions'].get(7, "")
-                b6.current.update()
-                a1.current.value = ""
-                a1.current.update()
-                a2.current.value = ""
-                a2.current.update()
-                a3.current.value = ""
-                a3.current.update()
-                a4.current.value = ""
-                a4.current.update()
-                a5.current.value = ""
-                a5.current.update()
-                a6.current.value = ""
-                a6.current.update()
-                ans_counter = 0
-                answers = [
-                    cached_data[sheet_name]['answers'].get(2, ""),
-                    cached_data[sheet_name]['answers'].get(3, ""),
-                    cached_data[sheet_name]['answers'].get(4, ""),
-                    cached_data[sheet_name]['answers'].get(5, ""),
-                    cached_data[sheet_name]['answers'].get(6, ""),
-                    cached_data[sheet_name]['answers'].get(7, "")
-                ]
-                a1.current.value = cached_data[sheet_name]['questions'].get(2, "")
-                a1.current.update()
-                a2.current.value = cached_data[sheet_name]['questions'].get(3, "")
-                a2.current.update()
-                a3.current.value = cached_data[sheet_name]['questions'].get(4, "")
-                a3.current.update()
-                a4.current.value = cached_data[sheet_name]['questions'].get(5, "")
-                a4.current.update()
-                a5.current.value = cached_data[sheet_name]['questions'].get(6, "")
-                a5.current.update()
+            b1.current.value = cached_data[sheet_name]['answers'].get(2, "")
+            b1.current.update()
+            b2.current.value = cached_data[sheet_name]['answers'].get(3, "")
+            b2.current.update()
+            b3.current.value = cached_data[sheet_name]['answers'].get(4, "")
+            b3.current.update()
+            b4.current.value = cached_data[sheet_name]['answers'].get(5, "")
+            b4.current.update()
+
+            a1.current.value = ""
+            a1.current.update()
+            a2.current.value = ""
+            a2.current.update()
+            a3.current.value = ""
+            a3.current.update()
+            a4.current.value = ""
+            a4.current.update()
+
+            ans_counter = 0
+            answers = [
+                cached_data[sheet_name]['answers'].get(2, ""),
+                cached_data[sheet_name]['answers'].get(3, ""),
+                cached_data[sheet_name]['answers'].get(4, ""),
+                cached_data[sheet_name]['answers'].get(5, ""),
+                cached_data[sheet_name]['answers'].get(6, ""),
+                cached_data[sheet_name]['answers'].get(7, "")
+            ]
+            a1.current.value = cached_data[sheet_name]['questions'].get(2, "")
+            a1.current.update()
+            a2.current.value = cached_data[sheet_name]['questions'].get(3, "")
+            a2.current.update()
+            a3.current.value = cached_data[sheet_name]['questions'].get(4, "")
+            a3.current.update()
+            a4.current.value = cached_data[sheet_name]['questions'].get(5, "")
+            a4.current.update()
+
         else:
             a1.current.value = ""
             a1.current.update()
@@ -259,10 +301,7 @@ async def main(page: ft.Page):
             a3.current.update()
             a4.current.value = ""
             a4.current.update()
-            a5.current.value = ""
-            a5.current.update()
-            a6.current.value = ""
-            a6.current.update()
+
             b1.current.value = ""
             b1.current.update()
             b2.current.value = ""
@@ -271,10 +310,7 @@ async def main(page: ft.Page):
             b3.current.update()
             b4.current.value = ""
             b4.current.update()
-            b5.current.value = ""
-            b5.current.update()
-            b6.current.value = ""
-            b6.current.update()
+
             ans_counter = 0
             answers = ["", "", "", "", "", ""]
 
@@ -284,6 +320,7 @@ async def main(page: ft.Page):
         nonlocal cached_data
         nonlocal display_index
         nonlocal answers
+        nonlocal correct_count
         print(f"Selector called with key: {key_display.value}")
         try:
             question_displayq = 0
@@ -305,8 +342,6 @@ async def main(page: ft.Page):
                     round_value_ref.current.value = str(currentqnum - 1)
                     round_value_ref.current.update()
                     update_display()
-
-
 
             #Selecting specific cell
             if key_display.value == "Arrow Up":
@@ -387,7 +422,7 @@ async def main(page: ft.Page):
                     current_score += score_point_var
                     score_value_ref.current.value = str(current_score)
                     score_value_ref.current.update()
-                    correct_answer_value() # updating the answer on right  column
+                    
                 if countdown_ref.current:
                     countdown_ref.current.seconds += time_point_var
                     countdown_ref.current.value = str(countdown_ref.current.seconds)
@@ -399,7 +434,7 @@ async def main(page: ft.Page):
                 display_index = (display_index + 1) % 6
 
 
-
+                get_column_c_values(sheet_name)
                 # Play correct sound
                 threading.Thread(target=lambda: correct_sound.play(), daemon=True).start()
 
@@ -424,6 +459,39 @@ async def main(page: ft.Page):
 
                 # Play wrong sound
                 threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()
+
+            elif key_display.value == "Enter":
+                sheet_name = sheet_selector(int(qnum_value_ref.current.value))
+                column_c_dict = get_column_c_values(sheet_name)
+                if column_c_dict:
+                    column_c_values = set(str(v).strip().lower() for v in column_c_dict.values() if v is not None)
+                    print("Column C values (normalized):", column_c_values)
+                    correct_count = 0
+                    ref_map = {
+                        "a1": a1,
+                        "a2": a2,
+                        "a3": a3,
+                        "a4": a4,
+                        "b1": b1,
+                        "b2": b2,
+                        "b3": b3,
+                        "b4": b4,
+                    }
+                    for key, state in toggled_states.items():
+                        if state:
+                            text_ref = ref_map.get(key)
+                            if text_ref and text_ref.current:
+                                value = str(text_ref.current.value).strip().lower()
+                                print(f"Toggled text {key}: '{value}'")
+                                if value in column_c_values:
+                                    correct_count += 1
+                    ans_value_ref.current.value = f"Correct toggled: {correct_count}"
+                    print(f"Correct count: {correct_count}")
+                    count_display_circles()
+
+                else:
+                    ans_value_ref.current.value = "No data"
+                ans_value_ref.current.update()
 
             print(f"Question display cue number: ", question_displayq)
         except Exception as ex:
@@ -473,6 +541,36 @@ async def main(page: ft.Page):
     
 
 
+    def toggle_text(key):
+        nonlocal toggled_states
+        ref_map = {
+            "a1": a1,
+            "a2": a2,
+            "a3": a3,
+            "a4": a4,
+            "b1": b1,
+            "b2": b2,
+            "b3": b3,
+            "b4": b4,
+        }
+        text_ref = ref_map.get(key)
+        if text_ref is None or text_ref.current is None:
+            return
+
+        current_state = toggled_states[key]
+
+        if not current_state:
+            # Toggle on: set size 40, color yellow
+            text_ref.current.style = ft.TextStyle(size=40, color="yellow", weight=ft.FontWeight.BOLD)
+            toggled_states[key] = True
+        else:
+            # Toggle off: reset size and color (default size 20, color white)
+            text_ref.current.style = ft.TextStyle(size=20, color="white", weight=ft.FontWeight.BOLD)
+            toggled_states[key] = False
+
+        text_ref.current.update()
+        print("Toggled states:", toggled_states)
+
     def on_keyboard(e: ft.KeyboardEvent):
         key_display.value = f"{e.key}"
         modifiers_display.value = f"Shift: {e.shift}, Ctrl: {e.ctrl}, Alt: {e.alt}, Meta: {e.meta}"
@@ -481,19 +579,19 @@ async def main(page: ft.Page):
         page.update()
     page.on_keyboard_event = on_keyboard
     key_display = ft.Text("", opacity=0.2,)
-    
+
     modifiers_display = ft.Text("Modifiers: ")
 
 
     page.add(
-       
+
         ft.Stack(
             expand=True,
             controls=[
                 # Background image centered and scaled to fit
                 ft.Image(
-                    #BG_3.png for round 3
-                    src="assets/BG_4.png",
+                    #BG_4.png for round 4
+                    src="assets/BG_5.png",
                     expand=True,
                     fit=ft.ImageFit.CONTAIN,
                 ),
@@ -507,6 +605,7 @@ async def main(page: ft.Page):
                     top=120,
                     ref=logo_ref
                 ),
+           
 
                 #ft.Text("Press any key...", opacity=0.5),
                 key_display,
@@ -524,7 +623,7 @@ async def main(page: ft.Page):
                                 top=140,
                             ),
                             ft.Container(
-                                content=ft.Text("3", style=ft.TextStyle(font_family="digital-7",size=20), ref=qnum_value_ref),
+                                content=ft.Text("4", style=ft.TextStyle(font_family="digital-7",size=20), ref=qnum_value_ref),
                                 alignment=ft.alignment.top_left,
                                 left=370,
                                 top=140,
@@ -549,7 +648,7 @@ async def main(page: ft.Page):
                                 top=350,
                             ),
                             ft.Container(
-                                content=ft.Text("03", style=ft.TextStyle(font_family="digital-7", size=60), ref=round_value_ref),
+                                content=ft.Text("04", style=ft.TextStyle(font_family="digital-7", size=60), ref=round_value_ref),
                                 alignment=ft.alignment.top_left,
                                 left=80,
                                 top=400,
@@ -570,6 +669,7 @@ async def main(page: ft.Page):
                                 #######################
                                 content=ft.Text("1", style=ft.TextStyle(font_family="digital-7", size=20), ref=refdisqnumber_val_ref),
                                 alignment=ft.alignment.top_left,
+                                opacity=0.0,
                                 left=20,
                                 top=600,
                             ),
@@ -596,70 +696,110 @@ async def main(page: ft.Page):
                             content=ft.Stack(
                                 controls=[
                                     ft.Container(
-                                        content=ft.Text("ROUND 3: PINOY UNSCRAMBLE", size=20, weight=ft.FontWeight.BOLD),
-                                        left=240,
-                                        top=0,
+                                        content=ft.Text("ROUND 4: IDENTIFY", size=15, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
+                                        left=0,
+                                        top=10,
+                                        width=930,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A. ", size=20, weight=ft.FontWeight.BOLD, ref=a1),
-                                        #alignment=ft.alignment.top_center,
-                                        #opacity=0,
-                                        left=230,
-                                        top=40,
+                                        content=ft.Text("A1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a1, text_align=ft.TextAlign.CENTER),
+                                        left=20,
+                                        top=50,
+                                        width=430,
+                                        on_click=lambda e: toggle_text("a1")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B. ", size=20, weight=ft.FontWeight.BOLD, ref=a2),
-                                        #opacity=0,
-                                        left=230,
-                                        top=140,
-                                        #alignment=ft.alignment.top_center,
+                                        content=ft.Text("A2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a2, text_align=ft.TextAlign.CENTER),
+                                        left=20,
+                                        top=126,
+                                        width=430,
+                                        on_click=lambda e: toggle_text("a2")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("C. ", size=20, weight=ft.FontWeight.BOLD, ref=a3),
-                                        #opacity=0,
-                                        left=230,
-                                        top=240,
+                                        content=ft.Text("A3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a3, text_align=ft.TextAlign.CENTER),
+                                        left=20,
+                                        top=202,
+                                        width=430,
+                                        on_click=lambda e: toggle_text("a3")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("D. ", size=20, weight=ft.FontWeight.BOLD, ref=a4),
-                                        #opacity=0,
-                                        left=230,
-                                        top=340,
+                                        content=ft.Text("A4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a4, text_align=ft.TextAlign.CENTER),
+                                        left=20,
+                                        top=278,
+                                        width=430,
+                                        on_click=lambda e: toggle_text("a4")
                                     ),
-                                    ft.Container(
-                                        content=ft.Text("E. ", size=20, weight=ft.FontWeight.BOLD, ref=a5),
-                                        #opacity=0,
-                                        left=230,
-                                        top=440,
-                                    ),
-
 
                                     #### B Column
                                     ft.Container(
-                                        content=ft.Text("B1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b1),
-                                        #opacity=0,
-                                        left=270,
-                                        top=40,
+                                        content=ft.Text("B1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b1, text_align=ft.TextAlign.CENTER),
+                                        left=450,
+                                        top=50,
+                                        width=430,
+                                        on_click=lambda e: toggle_text("b1")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b2),
-                                        left=270,
-                                        top=140,
+                                        content=ft.Text("B2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b2, text_align=ft.TextAlign.CENTER),
+                                        left=450,
+                                        top=126,
+                                        width=430,
+                                        on_click=lambda e: toggle_text("b2")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b3),
-                                        left=270,
-                                        top=240,
+                                        content=ft.Text("B3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b3, text_align=ft.TextAlign.CENTER),
+                                        left=450,
+                                        top=202,
+                                        width=430,
+                                        on_click=lambda e: toggle_text("b3")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b4),
-                                        left=270,
-                                        top=340,
+                                        content=ft.Text("B4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b4, text_align=ft.TextAlign.CENTER),
+                                        left=450,
+                                        top=278,
+                                        width=430,
+                                        on_click=lambda e: toggle_text("b4")
                                     ),
-                                    ft.Container(
-                                        content=ft.Text("B5 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b5),
-                                        left=270,
-                                        top=440,
+
+
+                                    ### CIRCLE POINTS
+                                    ft.Image(
+                                        src="assets/circle.png",
+                                        width=70,
+                                        height=70,
+                                        fit=ft.ImageFit.CONTAIN,
+                                        left=240,
+                                        top=380,
+                                        ref=circle1_ref
+                                    ),
+
+                                    ft.Image(
+                                    src="assets/circle.png",
+                                        width=70,
+                                        height=70,
+                                        fit=ft.ImageFit.CONTAIN,
+                                        left=390,
+                                        top=380,
+                                        ref=circle2_ref
+                                    ),
+
+                                    ft.Image(
+                                        src="assets/circle.png",
+                                        width=70,
+                                        height=70,
+                                        fit=ft.ImageFit.CONTAIN,
+                                        left=540,
+                                        top=380,
+                                        ref=circle3_ref
+                                    ),
+
+                                     ft.Image(
+                                        src="assets/circle.png",
+                                        width=70,
+                                        height=70,
+                                        fit=ft.ImageFit.CONTAIN,
+                                        left=690,
+                                        top=380,
+                                        ref=circle4_ref
                                     ),
 
                                 ],
@@ -676,6 +816,7 @@ async def main(page: ft.Page):
                     left=195,  # X-axis position
                     top=160    # Y-axis position
                 ),
+             
                
 
             ]
