@@ -33,12 +33,13 @@ class Countdown(ft.Text):
         self.paused = not self.paused
 
     def start(self):
+        print("Countdown start called")
         if self.task and not self.task.done():
             self.task.cancel()
         self.running = True
         self.seconds = self.initial_seconds
         self.value = str(self.seconds)
-        self.update()
+        self.page.update()
         self.task = self.page.run_task(self._update_timer)
 
     async def _update_timer(self):
@@ -52,7 +53,8 @@ class Countdown(ft.Text):
                     # 1. Decrement and update UI
                     self.seconds -= 1
                     self.value = str(self.seconds)
-                    self.update()
+                    print(f"Countdown updating to {self.seconds}")
+                    self.page.update()
 
                     # 2. Fire off heartbeat.py in a non-blocking way
                     if os.path.isfile(script_path):
@@ -64,7 +66,7 @@ class Countdown(ft.Text):
             # When countdown ends
             if self.running:
                 self.value = "Time's up!"
-                self.update()
+                self.page.update()
         finally:
             self.task = None
 
@@ -107,7 +109,7 @@ async def main(page: ft.Page):
     answers = []
     display_index = 0
     ans_counter = 0
-
+    
     # my variables
     logo_ref = ft.Ref[ft.Image]() # current logo
 
@@ -179,39 +181,49 @@ async def main(page: ft.Page):
         nonlocal answers, ans_counter
         sheet_name = sheet_selector(int(qnum_value_ref.current.value))
         if sheet_name in cached_data:
-            a1.current.value = cached_data[sheet_name]['questions'].get(2, "")
-            a1.current.update()
-            a2.current.value = cached_data[sheet_name]['questions'].get(3, "")
-            a2.current.update()
-            a3.current.value = cached_data[sheet_name]['questions'].get(4, "")
-            a3.current.update()
-            a4.current.value = cached_data[sheet_name]['questions'].get(5, "")
-            a4.current.update()
-            a5.current.value = cached_data[sheet_name]['questions'].get(6, "")
-            a5.current.update()
-            a6.current.value = cached_data[sheet_name]['questions'].get(7, "")
-            a6.current.update()
-            b1.current.value = ""
-            b1.current.update()
-            b2.current.value = ""
-            b2.current.update()
-            b3.current.value = ""
-            b3.current.update()
-            b4.current.value = ""
-            b4.current.update()
-            b5.current.value = ""
-            b5.current.update()
-            b6.current.value = ""
-            b6.current.update()
-            ans_counter = 0
-            answers = [
-                cached_data[sheet_name]['answers'].get(2, ""),
-                cached_data[sheet_name]['answers'].get(3, ""),
-                cached_data[sheet_name]['answers'].get(4, ""),
-                cached_data[sheet_name]['answers'].get(5, ""),
-                cached_data[sheet_name]['answers'].get(6, ""),
-                cached_data[sheet_name]['answers'].get(7, "")
-            ]
+                b1.current.value = cached_data[sheet_name]['questions'].get(2, "")
+                b1.current.update()
+                b2.current.value = cached_data[sheet_name]['questions'].get(3, "")
+                b2.current.update()
+                b3.current.value = cached_data[sheet_name]['questions'].get(4, "")
+                b3.current.update()
+                b4.current.value = cached_data[sheet_name]['questions'].get(5, "")
+                b4.current.update()
+                b5.current.value = cached_data[sheet_name]['questions'].get(6, "")
+                b5.current.update()
+                b6.current.value = cached_data[sheet_name]['questions'].get(7, "")
+                b6.current.update()
+                a1.current.value = ""
+                a1.current.update()
+                a2.current.value = ""
+                a2.current.update()
+                a3.current.value = ""
+                a3.current.update()
+                a4.current.value = ""
+                a4.current.update()
+                a5.current.value = ""
+                a5.current.update()
+                a6.current.value = ""
+                a6.current.update()
+                ans_counter = 0
+                answers = [
+                    cached_data[sheet_name]['answers'].get(2, ""),
+                    cached_data[sheet_name]['answers'].get(3, ""),
+                    cached_data[sheet_name]['answers'].get(4, ""),
+                    cached_data[sheet_name]['answers'].get(5, ""),
+                    cached_data[sheet_name]['answers'].get(6, ""),
+                    cached_data[sheet_name]['answers'].get(7, "")
+                ]
+                a1.current.value = cached_data[sheet_name]['answers'].get(2, "")
+                a1.current.update()
+                a2.current.value = cached_data[sheet_name]['answers'].get(3, "")
+                a2.current.update()
+                a3.current.value = cached_data[sheet_name]['answers'].get(4, "")
+                a3.current.update()
+                a4.current.value = cached_data[sheet_name]['answers'].get(5, "")
+                a4.current.update()
+                a5.current.value = cached_data[sheet_name]['answers'].get(6, "")
+                a5.current.update()
         else:
             a1.current.value = ""
             a1.current.update()
@@ -292,26 +304,32 @@ async def main(page: ft.Page):
             elif key_display.value =="0":
                 current_logo = "assets/nologo.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="1":
                 current_logo = "assets/fire.PNG"
                 update_display()
+                print(f"Logo set to: {current_logo}")
+                print(f"countdown_ref.current: {countdown_ref.current}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="2":
                 current_logo = "assets/wind.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="3":
                 current_logo = "assets/earth.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value =="4":
                 current_logo = "assets/water.png"
                 update_display()
+                print(f"Logo set to: {current_logo}")
                 if countdown_ref.current:
                     countdown_ref.current.start()
             elif key_display.value == "T":
@@ -361,12 +379,11 @@ async def main(page: ft.Page):
                 threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()
 
             print(f"Question display cue number: ", question_displayq)
-
-            logo_ref.current.src = current_logo
         except Exception as ex:
             current = int(qnum_value_ref.current.value)
             #qnum_value_ref.current.value = "Err"
 
+        logo_ref.current.src = current_logo
 
         # CALLING THE CURRENNT QUESTION NUMBER
         current_question_number()
@@ -403,12 +420,7 @@ async def main(page: ft.Page):
             print("Current sheet Name: ", sheet_name)
             return
 
-        # Start countdown if selected cell is A2
-        if refdisqnumber_val_ref.current.value == "2":
-            if countdown_ref.current is not None:
-                countdown_ref.current.start()
-
-
+ 
     
 
 
@@ -431,8 +443,8 @@ async def main(page: ft.Page):
             controls=[
                 # Background image centered and scaled to fit
                 ft.Image(
-                    #BG_3.png for round 2
-                    src="assets/BG_3.png",
+                    #BG_3.png for round 3
+                    src="assets/BG_4.png",
                     expand=True,
                     fit=ft.ImageFit.CONTAIN,
                 ),
@@ -442,12 +454,11 @@ async def main(page: ft.Page):
                     width=40,
                     height=40,
                     fit=ft.ImageFit.CONTAIN,
-                    #left=580,
                     left=1070,
                     top=120,
                     ref=logo_ref
                 ),
-                
+
                 #ft.Text("Press any key...", opacity=0.5),
                 key_display,
                 #modifiers_display,
@@ -464,7 +475,7 @@ async def main(page: ft.Page):
                                 top=140,
                             ),
                             ft.Container(
-                                content=ft.Text("2", style=ft.TextStyle(font_family="digital-7",size=20), ref=qnum_value_ref),
+                                content=ft.Text("3", style=ft.TextStyle(font_family="digital-7",size=20), ref=qnum_value_ref),
                                 alignment=ft.alignment.top_left,
                                 left=370,
                                 top=140,
@@ -489,7 +500,7 @@ async def main(page: ft.Page):
                                 top=350,
                             ),
                             ft.Container(
-                                content=ft.Text("02", style=ft.TextStyle(font_family="digital-7", size=60), ref=round_value_ref),
+                                content=ft.Text("03", style=ft.TextStyle(font_family="digital-7", size=60), ref=round_value_ref),
                                 alignment=ft.alignment.top_left,
                                 left=80,
                                 top=400,
@@ -536,72 +547,72 @@ async def main(page: ft.Page):
                             content=ft.Stack(
                                 controls=[
                                     ft.Container(
-                                        content=ft.Text("ROUND 2: ARRANGE THE FOLLOWING.", size=15, weight=ft.FontWeight.BOLD),
+                                        content=ft.Text("ROUND 3: PINOY UNSCRAMBLE", size=20, weight=ft.FontWeight.BOLD),
                                         left=240,
                                         top=0,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a1),
-                                        left=20,
-                                        top=20,
+                                        content=ft.Text("A. ", size=20, weight=ft.FontWeight.BOLD, ref=a1),
+                                        #alignment=ft.alignment.top_center,
+                                        #opacity=0,
+                                        left=230,
+                                        top=40,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a2),
-                                        left=20,
-                                        top=96,
+                                        content=ft.Text("B. ", size=20, weight=ft.FontWeight.BOLD, ref=a2),
+                                        #opacity=0,
+                                        left=230,
+                                        top=140,
+                                        #alignment=ft.alignment.top_center,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a3),
-                                        left=20,
-                                        top=172,
+                                        content=ft.Text("C. ", size=20, weight=ft.FontWeight.BOLD, ref=a3),
+                                        #opacity=0,
+                                        left=230,
+                                        top=240,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a4),
-                                        left=20,
-                                        top=248,
+                                        content=ft.Text("D. ", size=20, weight=ft.FontWeight.BOLD, ref=a4),
+                                        #opacity=0,
+                                        left=230,
+                                        top=340,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A5 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a5),
-                                        left=20,
-                                        top=324,
+                                        content=ft.Text("E. ", size=20, weight=ft.FontWeight.BOLD, ref=a5),
+                                        #opacity=0,
+                                        left=230,
+                                        top=440,
                                     ),
-                                    ft.Container(
-                                        content=ft.Text("A6 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a6),
-                                        left=20,
-                                        top=400,
-                                    ),
+
 
                                     #### B Column
                                     ft.Container(
                                         content=ft.Text("B1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b1),
-                                        left=450,
-                                        top=20,
+                                        #opacity=0,
+                                        left=270,
+                                        top=40,
                                     ),
                                     ft.Container(
                                         content=ft.Text("B2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b2),
-                                        left=450,
-                                        top=96,
+                                        left=270,
+                                        top=140,
                                     ),
                                     ft.Container(
                                         content=ft.Text("B3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b3),
-                                        left=450,
-                                        top=172,
+                                        left=270,
+                                        top=240,
                                     ),
                                     ft.Container(
                                         content=ft.Text("B4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b4),
-                                        left=450,
-                                        top=248,
+                                        left=270,
+                                        top=340,
                                     ),
                                     ft.Container(
                                         content=ft.Text("B5 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b5),
-                                        left=450,
-                                        top=324,
+                                        left=270,
+                                        top=440,
                                     ),
-                                    ft.Container(
-                                        content=ft.Text("B6 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b6),
-                                        left=450,
-                                        top=400,
-                                    ),
+
                                 ],
                                 width=600,
                                 height=480,
