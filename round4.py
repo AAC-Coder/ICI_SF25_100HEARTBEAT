@@ -12,7 +12,7 @@ from collections import Counter
 _cached_workbook = None
 _cached_sheets = {}
 
-    
+
 
 def get_column_c_values(sheet_name=None):
     """
@@ -172,6 +172,17 @@ async def main(page: ft.Page):
     correct_sound = pygame.mixer.Sound("assets/sounds_correct.mp3")
     wrong_sound = pygame.mixer.Sound("assets/sounds_wrong.mp3")
 
+    def add_score(points):
+        if score_value_ref.current:
+            current_score = int(score_value_ref.current.value)
+            current_score += points
+            score_value_ref.current.value = str(current_score)
+            score_value_ref.current.update()
+    def subtract_time(seconds):
+        if countdown_ref.current:
+            countdown_ref.current.seconds -= seconds
+            countdown_ref.current.value = str(countdown_ref.current.seconds)
+            countdown_ref.current.update()    
 
     # Cache the Excel data
     try:
@@ -195,19 +206,35 @@ async def main(page: ft.Page):
         print(f"Error loading workbook: {e}")
         cached_data = {}
 
+    def clear_circles():
+        nonlocal circle1_ref, circle2_ref, circle3_ref, circle4_ref
+        try:
+            circle1_ref.current.src = "assets/circle.png"
+            circle1_ref.current.update()
+            circle2_ref.current.src = "assets/circle.png"
+            circle2_ref.current.update()
+            circle3_ref.current.src = "assets/circle.png"
+            circle3_ref.current.update()
+            circle4_ref.current.src = "assets/circle.png"
+            circle4_ref.current.update()
+        except Exception as e:
+            print(f"Error clearing circles: {e}")
+    
     def count_display_circles():
         nonlocal correct_count, circle1_ref, circle2_ref, circle3_ref, circle4_ref
         try:
             if correct_count == 1:
                 circle1_ref.current.src = "assets/circle_ic.png"
                 circle1_ref.current.update()   
-                threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()          
+                threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start() 
+                subtract_time(time_point_var)         
             elif correct_count == 2:
                 circle1_ref.current.src = "assets/circle_ic.png"
                 circle1_ref.current.update()
                 circle2_ref.current.src = "assets/circle_ic.png"
                 circle2_ref.current.update()
                 threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()
+                subtract_time(time_point_var)
             elif correct_count == 3:
                 circle1_ref.current.src = "assets/circle_ic.png"
                 circle1_ref.current.update()
@@ -216,6 +243,7 @@ async def main(page: ft.Page):
                 circle3_ref.current.src = "assets/circle_ic.png"
                 circle3_ref.current.update()
                 threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()
+                subtract_time(time_point_var)
             elif correct_count == 4:
                 circle1_ref.current.src = "assets/circle_ic.png"
                 circle1_ref.current.update()
@@ -226,6 +254,7 @@ async def main(page: ft.Page):
                 circle4_ref.current.src = "assets/circle_ic.png"
                 circle4_ref.current.update()
                 threading.Thread(target=lambda: correct_sound.play(), daemon=True).start()
+                add_score(score_point_var)
         except Exception as e:
             print(f"Error updating circles: {e}")
 
@@ -461,6 +490,7 @@ async def main(page: ft.Page):
                 threading.Thread(target=lambda: wrong_sound.play(), daemon=True).start()
 
             elif key_display.value == "Enter":
+                clear_circles()
                 sheet_name = sheet_selector(int(qnum_value_ref.current.value))
                 column_c_dict = get_column_c_values(sheet_name)
                 if column_c_dict:
