@@ -542,64 +542,64 @@ async def main(page: ft.Page):
                                         top=0,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a1),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a1),
                                         left=20,
                                         top=20,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a2),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a2),
                                         left=20,
                                         top=96,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a3),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a3),
                                         left=20,
                                         top=172,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a4),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a4),
                                         left=20,
                                         top=248,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A5 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a5),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a5),
                                         left=20,
                                         top=324,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A6 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a6),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a6),
                                         left=20,
                                         top=400,
                                     ),
 
                                     #### B Column
                                     ft.Container(
-                                        content=ft.Text("B1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b1),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b1),
                                         left=450,
                                         top=20,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b2),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b2),
                                         left=450,
                                         top=96,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b3),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b3),
                                         left=450,
                                         top=172,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b4),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b4),
                                         left=450,
                                         top=248,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B5 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b5),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b5),
                                         left=450,
                                         top=324,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B6 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b6),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b6),
                                         left=450,
                                         top=400,
                                     ),

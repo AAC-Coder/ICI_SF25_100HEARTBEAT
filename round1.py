@@ -403,7 +403,7 @@ async def main(page: ft.Page):
                         content=ft.Container(
                             content=ft.Column(
                                 controls=[
-                                    ft.Text("ANSWER HERE", size=20, weight=ft.FontWeight.BOLD, ref=ans_value_ref),
+                                    ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=ans_value_ref),
                                 ],
                                 alignment=ft.MainAxisAlignment.CENTER,
                                 horizontal_alignment=ft.CrossAxisAlignment.CENTER

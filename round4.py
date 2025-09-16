@@ -732,28 +732,28 @@ async def main(page: ft.Page):
                                         width=930,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a1, text_align=ft.TextAlign.CENTER),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a1, text_align=ft.TextAlign.CENTER),
                                         left=20,
                                         top=50,
                                         width=430,
                                         on_click=lambda e: toggle_text("a1")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a2, text_align=ft.TextAlign.CENTER),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a2, text_align=ft.TextAlign.CENTER),
                                         left=20,
                                         top=126,
                                         width=430,
                                         on_click=lambda e: toggle_text("a2")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a3, text_align=ft.TextAlign.CENTER),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a3, text_align=ft.TextAlign.CENTER),
                                         left=20,
                                         top=202,
                                         width=430,
                                         on_click=lambda e: toggle_text("a3")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a4, text_align=ft.TextAlign.CENTER),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=a4, text_align=ft.TextAlign.CENTER),
                                         left=20,
                                         top=278,
                                         width=430,
@@ -762,28 +762,28 @@ async def main(page: ft.Page):
 
                                     #### B Column
                                     ft.Container(
-                                        content=ft.Text("B1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b1, text_align=ft.TextAlign.CENTER),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b1, text_align=ft.TextAlign.CENTER),
                                         left=450,
                                         top=50,
                                         width=430,
                                         on_click=lambda e: toggle_text("b1")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b2, text_align=ft.TextAlign.CENTER),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b2, text_align=ft.TextAlign.CENTER),
                                         left=450,
                                         top=126,
                                         width=430,
                                         on_click=lambda e: toggle_text("b2")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b3, text_align=ft.TextAlign.CENTER),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b3, text_align=ft.TextAlign.CENTER),
                                         left=450,
                                         top=202,
                                         width=430,
                                         on_click=lambda e: toggle_text("b3")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b4, text_align=ft.TextAlign.CENTER),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b4, text_align=ft.TextAlign.CENTER),
                                         left=450,
                                         top=278,
                                         width=430,

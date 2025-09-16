@@ -636,28 +636,28 @@ async def main(page: ft.Page):
 
                                     #### B Column
                                     ft.Container(
-                                        content=ft.Text("B1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b1),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b1),
                                         #opacity=0,
                                         left=270,
                                         top=40,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b2),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b2),
                                         left=270,
                                         top=140,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B3 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b3),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b3),
                                         left=270,
                                         top=240,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B4 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b4),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b4),
                                         left=270,
                                         top=340,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("B5 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=b5),
+                                        content=ft.Text(" ", size=20, weight=ft.FontWeight.BOLD, ref=b5),
                                         left=270,
                                         top=440,
                                     ),

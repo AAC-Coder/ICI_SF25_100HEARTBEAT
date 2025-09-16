@@ -574,7 +574,7 @@ async def main(page: ft.Page):
                                         width=930,
                                     ),
                                     ft.Container(
-                                        content=ft.Text("A1 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a1, text_align=ft.TextAlign.LEFT, max_lines=None),
+                                        content=ft.Text("INNOVATIVE CONTROLS SF 2025", size=20, weight=ft.FontWeight.BOLD, ref=a1, text_align=ft.TextAlign.LEFT, max_lines=None),
                                         left=20,
                                         top=40,
                                         width=890,

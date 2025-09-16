@@ -96,7 +96,7 @@ async def main(page: ft.Page):
 
     # Display choices
     a1 = ft.Ref[ft.Text]()
-    a2 = ft.Ref[ft.Text]()
+
 
 
     # Toggle states for each text
@@ -213,7 +213,7 @@ async def main(page: ft.Page):
             ans_counter = 0
             answers = ["", "", "", "", "", ""]
 
-    sheet_names = ["R6-CHAMPIONSHIP", "R6-BATTLE FOR 3RD"]
+    sheet_names = ["R6-RECALL", "R6-CHAMPIONSHIP", "R6-BATTLE FOR 3RD"]
     current_sheet_index = 0
 
     def selector():
@@ -467,7 +467,7 @@ async def main(page: ft.Page):
                             ),
                             ft.Container(
                                 #######################
-                                content=ft.Text("2", style=ft.TextStyle(font_family="digital-7", size=20), ref=refdisqnumber_val_ref),
+                                content=ft.Text("1", style=ft.TextStyle(font_family="digital-7", size=20), ref=refdisqnumber_val_ref),
                                 alignment=ft.alignment.top_left,
                                 #opacity=0.0,
                                 left=20,
@@ -497,7 +497,7 @@ async def main(page: ft.Page):
                             content=ft.Stack(
                                 controls=[
                                     ft.Container(
-                                        content=ft.Text("ROUND 6: KEEP UP!", size=15, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
+                                        content=ft.Text("ROUND6 - RECALL", size=15, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
                                         left=0,
                                         top=10,
                                         width=930,
@@ -505,23 +505,15 @@ async def main(page: ft.Page):
 
 
                                     ft.Container(
-                                        content=ft.Text("A1 INNOVATIVE CONTROLS", size=80, weight=ft.FontWeight.BOLD, ref=a1, text_align=ft.TextAlign.LEFT, max_lines=None),
+                                        content=ft.Text(" ", size=23, weight=ft.FontWeight.BOLD, ref=a1, text_align=ft.TextAlign.LEFT, max_lines=None),
                                         left=20,
-                                        top=80,
+                                        top=25,
                                         width=890,
                                         padding=20,
                                         alignment=ft.alignment.center,
                                         on_click=lambda e: toggle_text("a1")
                                     ),
-                                    ft.Container(
-                                        content=ft.Text("A2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a2, text_align=ft.TextAlign.LEFT, max_lines=None),
-                                        left=20,
-                                        top=400,
-                                        width=890,
-                                        padding=20,
-                                        alignment=ft.alignment.center,
-                                        on_click=lambda e: toggle_text("a2")
-                                    ),
+
 
                                 ],
                                 width=600,
