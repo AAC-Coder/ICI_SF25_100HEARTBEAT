@@ -117,7 +117,7 @@ async def main(page: ft.Page):
 
     current_logo = "assets/nologo.png"
     timer_running = False
-    countdown_ref = ft.Ref[Countdown]()  # Reference to countdown instance
+    time_value_ref = ft.Ref[Countdown]()  # Reference to countdown instance
 
     # score and time pointing system
     score_point_var = 3
@@ -135,10 +135,10 @@ async def main(page: ft.Page):
             score_value_ref.current.value = str(current_score)
             score_value_ref.current.update()
     def subtract_time(seconds):
-        if countdown_ref.current:
-            countdown_ref.current.seconds -= seconds
-            countdown_ref.current.value = str(countdown_ref.current.seconds)
-            countdown_ref.current.update()    
+        if time_value_ref.current:
+            time_value_ref.current.seconds -= seconds
+            time_value_ref.current.value = str(time_value_ref.current.seconds)
+            time_value_ref.current.update()
 
     # Cache the Excel data
     try:
@@ -213,7 +213,7 @@ async def main(page: ft.Page):
             ans_counter = 0
             answers = ["", "", "", "", "", ""]
 
-    sheet_names = ["R6-RECALL", "R6-CHAMPIONSHIP", "R6-BATTLE FOR 3RD"]
+    sheet_names = ["R6-RECALL"]
     current_sheet_index = 0
 
     def selector():
@@ -248,8 +248,8 @@ async def main(page: ft.Page):
                 refdisqnumber_val_ref.current.value = "2"
                 refdisqnumber_val_ref.current.update()
                 update_display()
-                if countdown_ref.current:
-                    countdown_ref.current.start()
+                if time_value_ref.current:
+                    time_value_ref.current.start()
             elif key_display.value == "Arrow Down":
                 current_sheet_index = (current_sheet_index - 1) % len(sheet_names)
                 print(f"Sheet index decremented to {current_sheet_index}")
@@ -257,17 +257,17 @@ async def main(page: ft.Page):
                 refdisqnumber_val_ref.current.value = "2"
                 refdisqnumber_val_ref.current.update()
                 update_display()
-                if countdown_ref.current:
-                    countdown_ref.current.start()
+                if time_value_ref.current:
+                    time_value_ref.current.start()
 
             elif key_display.value == "0":
                 # clear the questions and answers display
                 clear_display()
-                if countdown_ref.current:
-                    countdown_ref.current.start()
+                if time_value_ref.current:
+                    time_value_ref.current.start()
             elif key_display.value == "T":
-                if countdown_ref.current:
-                    countdown_ref.current.toggle_pause()
+                if time_value_ref.current:
+                    time_value_ref.current.toggle_pause()
             elif key_display.value == " ":  # Cycle through questions in column A from A2 to 12
                 # Add score_point_var to score_value_ref
                 if score_value_ref.current:
@@ -290,10 +290,10 @@ async def main(page: ft.Page):
 
             elif key_display.value == "Backspace":
                 # Subtract time_point_var from time_value_ref
-                if countdown_ref.current:
-                    countdown_ref.current.seconds -= time_point_var
-                    countdown_ref.current.value = str(countdown_ref.current.seconds)
-                    countdown_ref.current.update()
+                if time_value_ref.current:
+                    time_value_ref.current.seconds -= time_point_var
+                    time_value_ref.current.value = str(time_value_ref.current.seconds)
+                    time_value_ref.current.update()
 
                 sheet_name = sheet_selector()
                 if sheet_name in cached_data:
@@ -435,36 +435,36 @@ async def main(page: ft.Page):
                                 top=200,
                             ),
                             ft.Container(
-                                #Countown timer
-                                content=Countdown(seconds=100, heartbeat_script="heartbeat.py", style=ft.TextStyle(font_family="digital-7", size=60), ref=countdown_ref),
-                                alignment=ft.alignment.top_left,
-                                left=60,
-                                top=250,
-                            ),
-                            ft.Container(
-                                content=ft.Text("ROUND", style=ft.TextStyle(font_family="digital-7", size=30), ref=round_label_ref),
-                                alignment=ft.alignment.top_left,
-                                left=60,
-                                top=350,
-                            ),
-                            ft.Container(
-                                content=ft.Text("06", style=ft.TextStyle(font_family="digital-7", size=60), ref=round_value_ref),
-                                alignment=ft.alignment.top_left,
-                                left=80,
-                                top=400,
-                            ),
-                            ft.Container(
-                                content=ft.Text("SCORE", style=ft.TextStyle(font_family="digital-7", size=30), ref=score_label_ref),
-                                alignment=ft.alignment.top_left,
-                                left=60,
-                                top=500,
-                            ),
-                            ft.Container(
-                                content=ft.Text("000", style=ft.TextStyle(font_family="digital-7", size=60), ref=score_value_ref),
-                                alignment=ft.alignment.top_left,
-                                left=60,
-                                top=550,
-                            ),
+                            #Countown timer
+                            content=Countdown(seconds=100, heartbeat_script="heartbeat.py", style=ft.TextStyle(font_family="digital-7", size=60), ref=time_value_ref),
+                            alignment=ft.alignment.top_left,
+                            left=60,
+                            top=250,
+                        ),
+                        ft.Container(
+                            content=ft.Text("ROUND", style=ft.TextStyle(font_family="digital-7", size=30), ref=round_label_ref),
+                            alignment=ft.alignment.top_left,
+                            left=60,
+                            top=350,
+                        ),
+                        ft.Container(
+                            content=ft.Text(value="06", style=ft.TextStyle(font_family="digital-7", size=60), ref=round_value_ref),
+                            alignment=ft.alignment.top_left,
+                            left=80,
+                            top=400,
+                        ),
+                        ft.Container(
+                            content=ft.Text("SCORE", style=ft.TextStyle(font_family="digital-7", size=30), ref=score_label_ref),
+                            alignment=ft.alignment.top_left,
+                            left=60,
+                            top=500,
+                        ),
+                        ft.Container(
+                            content=ft.Text(value="000", style=ft.TextStyle(font_family="digital-7", size=60), ref=score_value_ref),
+                            alignment=ft.alignment.top_left,
+                            left=60,
+                            top=550,
+                        ),
                             ft.Container(
                                 #######################
                                 content=ft.Text("1", style=ft.TextStyle(font_family="digital-7", size=20), ref=refdisqnumber_val_ref),

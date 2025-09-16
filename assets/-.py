@@ -110,7 +110,7 @@ async def main(page: ft.Page):
     answers = []
     display_index = 0
     ans_counter = 0
-    cell_counter = 2
+    cell_counter = 1
     
     # my variables
     logo_ref = ft.Ref[ft.Image]() # current logo
@@ -179,7 +179,7 @@ async def main(page: ft.Page):
     
     def update_display():
         print("update_display called")
-        nonlocal answers, ans_counter, cell_counter
+        nonlocal answers, ans_counter
         sheet_name = sheet_selector()
         # Update sheet name display
         if sheet_name_ref.current:
@@ -203,7 +203,6 @@ async def main(page: ft.Page):
             row = int(refdisqnumber_val_ref.current.value)
             a1.current.value = cached_data[sheet_name]['questions'].get(row, "")
             a1.current.update()
-            cell_counter = row  # Synchronize cell_counter with current row
 
         else:
             a1.current.value = ""
@@ -214,7 +213,7 @@ async def main(page: ft.Page):
             ans_counter = 0
             answers = ["", "", "", "", "", ""]
 
-    sheet_names = ["R6-BATTLE FOR 3RD", "R6-CHAMPIONSHIP"]
+    sheet_names = ["R6-CHAMPIONSHIP", "R6-BATTLE FOR 3RD"]
     current_sheet_index = 0
 
     def selector():
@@ -243,11 +242,7 @@ async def main(page: ft.Page):
 
             # Use arrow up/down to toggle between two sheets
             if key_display.value == "Arrow Up":
-                if current_sheet_index == -1:
-                    current_sheet_index = 0
-                else:
-                    current_sheet_index = (current_sheet_index + 1) % len(sheet_names)
-                
+                current_sheet_index = (current_sheet_index + 1) % len(sheet_names)
                 print(f"Sheet index incremented to {current_sheet_index}")
                 # Reset selected cell to 2 (A2) when sheet changes
                 refdisqnumber_val_ref.current.value = "2"
@@ -255,13 +250,8 @@ async def main(page: ft.Page):
                 update_display()
                 if countdown_ref.current:
                     countdown_ref.current.start()
-                a2.current.value = ""
-                a2.current.update()
             elif key_display.value == "Arrow Down":
-                if current_sheet_index == -1:
-                    current_sheet_index = 1
-                else:
-                    current_sheet_index = (current_sheet_index - 1) % len(sheet_names)
+                current_sheet_index = (current_sheet_index - 1) % len(sheet_names)
                 print(f"Sheet index decremented to {current_sheet_index}")
                 # Reset selected cell to 2 (A2) when sheet changes
                 refdisqnumber_val_ref.current.value = "2"
@@ -269,8 +259,7 @@ async def main(page: ft.Page):
                 update_display()
                 if countdown_ref.current:
                     countdown_ref.current.start()
-                a2.current.value = ""
-                a2.current.update()
+
             elif key_display.value == "0":
                 # clear the questions and answers display
                 clear_display()
@@ -286,33 +275,18 @@ async def main(page: ft.Page):
                     current_score += score_point_var
                     score_value_ref.current.value = str(current_score)
                     score_value_ref.current.update()
-                # Subtract time_point_var from countdown timer
-                if countdown_ref.current:
-                    countdown_ref.current.seconds += time_point_var
-                    countdown_ref.current.value = str(countdown_ref.current.seconds)
-                    countdown_ref.current.update()
                 if cell_counter < 12:
                     cell_counter += 1
                 sheet_name = sheet_selector()
                 if sheet_name in cached_data:
                     question = cached_data[sheet_name]['questions'].get(cell_counter, "")
-                    print(f"Space bar: cell_counter = {cell_counter}, question = '{question}'")
-                    if a1.current is None:
-                        print("a1.current is None")
-                    else:
-                        a1.current.value = question
-                        print(f"a1.current.value set to: '{a1.current.value}'")
-                        a1.current.update()
-                        page.update()  # Ensure UI refreshes after updating a1
+                    a1.current.value = question
+                    a1.current.update()
                     refdisqnumber_val_ref.current.value = str(cell_counter)
                     refdisqnumber_val_ref.current.update()
                     answer = cached_data[sheet_name]['answers'].get(cell_counter - 1, "")
-                    if a2.current is None:
-                        print("a2.current is None")
-                    else:
-                        a2.current.value = answer
-                        a2.current.update()
-                        page.update()  # Ensure UI refreshes after updating a2
+                    a2.current.value = answer
+                    a2.current.update()
 
             elif key_display.value == "Backspace":
                 # Subtract time_point_var from time_value_ref
@@ -348,8 +322,6 @@ async def main(page: ft.Page):
 
 
     def sheet_selector():
-        if current_sheet_index == -1:
-            return ""
         return sheet_names[current_sheet_index]
 
 
@@ -363,15 +335,11 @@ async def main(page: ft.Page):
             qnum = int(qnum_value_ref.current.value)
             row = int(refdisqnumber_val_ref.current.value)
             q = cached_data[sheet_name]['questions'].get(row, None)
-            #a1.current.value = q if q else "⚠️ Cell is empty"
-            a1.current.value = q if q else " "
+            a1.current.value = q if q else "⚠️ Cell is empty"
             a1.current.update()
             print("Current sheet Name: ", sheet_name)
         else:
-            if sheet_name == "":
-                a1.current.value = ""
-            else:
-                a1.current.value = f"❌ Sheet '{sheet_name}' not found"
+            a1.current.value = f"❌ Sheet '{sheet_name}' not found"
             a1.current.update()
             print("Current sheet Name: ", sheet_name)
             return
@@ -537,7 +505,7 @@ async def main(page: ft.Page):
 
 
                                     ft.Container(
-                                        content=ft.Text("INNOVATIVE CONTROLS SF 2025", size=80, weight=ft.FontWeight.BOLD, ref=a1, text_align=ft.TextAlign.LEFT, max_lines=None),
+                                        content=ft.Text("A1 INNOVATIVE CONTROLS", size=80, weight=ft.FontWeight.BOLD, ref=a1, text_align=ft.TextAlign.LEFT, max_lines=None),
                                         left=20,
                                         top=80,
                                         width=890,
@@ -546,7 +514,7 @@ async def main(page: ft.Page):
                                         on_click=lambda e: toggle_text("a1")
                                     ),
                                     ft.Container(
-                                        content=ft.Text("INNOVATIVE CONTROLS SF 2025", size=20, weight=ft.FontWeight.BOLD, ref=a2, text_align=ft.TextAlign.LEFT, max_lines=None),
+                                        content=ft.Text("A2 INNOVATIVE CONTROLS", size=20, weight=ft.FontWeight.BOLD, ref=a2, text_align=ft.TextAlign.LEFT, max_lines=None),
                                         left=20,
                                         top=400,
                                         width=890,
@@ -577,9 +545,8 @@ async def main(page: ft.Page):
         )
     )
 
-    # Initial display
-    #update_display()
-    # No initial display - wait for arrow keys
-
+    # Initialize display to A2
+    current_question_number()
+    update_display()
 
 ft.app(target=main)

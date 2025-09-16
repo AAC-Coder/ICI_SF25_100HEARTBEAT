@@ -110,7 +110,7 @@ async def main(page: ft.Page):
     answers = []
     display_index = 0
     ans_counter = 0
-    cell_counter = 1
+    cell_counter = 2
     
     # my variables
     logo_ref = ft.Ref[ft.Image]() # current logo
@@ -179,7 +179,7 @@ async def main(page: ft.Page):
     
     def update_display():
         print("update_display called")
-        nonlocal answers, ans_counter
+        nonlocal answers, ans_counter, cell_counter
         sheet_name = sheet_selector()
         # Update sheet name display
         if sheet_name_ref.current:
@@ -203,6 +203,7 @@ async def main(page: ft.Page):
             row = int(refdisqnumber_val_ref.current.value)
             a1.current.value = cached_data[sheet_name]['questions'].get(row, "")
             a1.current.update()
+            cell_counter = row  # Synchronize cell_counter with current row
 
         else:
             a1.current.value = ""
@@ -213,7 +214,7 @@ async def main(page: ft.Page):
             ans_counter = 0
             answers = ["", "", "", "", "", ""]
 
-    sheet_names = ["R6-CHAMPIONSHIP", "R6-BATTLE FOR 3RD"]
+    sheet_names = ["R6-BATTLE FOR 3RD", "R6-CHAMPIONSHIP"]
     current_sheet_index = 0
 
     def selector():
@@ -362,7 +363,8 @@ async def main(page: ft.Page):
             qnum = int(qnum_value_ref.current.value)
             row = int(refdisqnumber_val_ref.current.value)
             q = cached_data[sheet_name]['questions'].get(row, None)
-            a1.current.value = q if q else "⚠️ Cell is empty"
+            #a1.current.value = q if q else "⚠️ Cell is empty"
+            a1.current.value = q if q else " "
             a1.current.update()
             print("Current sheet Name: ", sheet_name)
         else:
