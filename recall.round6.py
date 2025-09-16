@@ -46,6 +46,15 @@ class Countdown(ft.Text):
         self.update()
         self.task = self.page.run_task(self._update_timer)
 
+    def start_without_reset(self):
+        if self.task and not self.task.done():
+            self.task.cancel()
+        self.running = True
+        self.paused = False
+        self.value = str(self.seconds)
+        self.update()
+        self.task = self.page.run_task(self._update_timer)
+
     async def _update_timer(self):
         # locate your heartbeat.py next to this script
         script_path = os.path.join(os.path.dirname(__file__), self.heartbeat_script)
@@ -268,25 +277,11 @@ async def main(page: ft.Page):
             elif key_display.value == "T":
                 if time_value_ref.current:
                     time_value_ref.current.toggle_pause()
-            elif key_display.value == " ":  # Cycle through questions in column A from A2 to 12
-                # Add score_point_var to score_value_ref
-                if score_value_ref.current:
-                    current_score = int(score_value_ref.current.value)
-                    current_score += score_point_var
-                    score_value_ref.current.value = str(current_score)
-                    score_value_ref.current.update()
-                if cell_counter < 12:
-                    cell_counter += 1
-                sheet_name = sheet_selector()
-                if sheet_name in cached_data:
-                    question = cached_data[sheet_name]['questions'].get(cell_counter, "")
-                    a1.current.value = question
-                    a1.current.update()
-                    refdisqnumber_val_ref.current.value = str(cell_counter)
-                    refdisqnumber_val_ref.current.update()
-                    answer = cached_data[sheet_name]['answers'].get(cell_counter - 1, "")
-                    a2.current.value = answer
-                    a2.current.update()
+            elif key_display.value == " ":  # space bar pressed
+                # Trigger the countdown timer start here without resetting the timer
+                if time_value_ref.current:
+                    time_value_ref.current.start_without_reset()
+
 
             elif key_display.value == "Backspace":
                 # Subtract time_point_var from time_value_ref
@@ -343,6 +338,32 @@ async def main(page: ft.Page):
             a1.current.update()
             print("Current sheet Name: ", sheet_name)
             return
+
+
+
+    def open_edit_dialog():
+        time_tf = ft.TextField(label="Time", value=str(time_value_ref.current.seconds))
+        score_tf = ft.TextField(label="Score", value=score_value_ref.current.value)
+
+        def save(e):
+            time_value_ref.current.seconds = int(time_tf.value)
+            time_value_ref.current.value = str(time_value_ref.current.seconds)
+            time_value_ref.current.update()
+            score_value_ref.current.value = score_tf.value
+            score_value_ref.current.update()
+            page.close(dialog)
+
+        def cancel(e):
+            page.close(dialog)
+
+        dialog = ft.AlertDialog(
+            title=ft.Text("Edit Scoreboard"),
+            content=ft.Column([time_tf, score_tf]),
+            actions=[ft.TextButton("Cancel", on_click=cancel), ft.TextButton("Save", on_click=save)]
+        )
+
+        page.dialog = dialog
+        page.open(dialog)
 
 
 
@@ -413,6 +434,7 @@ async def main(page: ft.Page):
 
                 # Scoreboard section
                 ft.Container(
+                    on_click=lambda e: open_edit_dialog(),
                     content=ft.Stack(
                         controls=[
                             ft.Container(
